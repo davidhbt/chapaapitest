@@ -52,8 +52,8 @@ app.post('/api/checkout', async (req, res) => {
 
 // 2. Webhook to handle Chapa's callback and verify the transaction
 app.post('/callback', async (req, res) => {
-  const { status, tx_ref, message, data } = req.body;  // Data from Chapa's callback
-  console.log('Chapa Callback Data:', req.body); // Log the callback data for debugging
+  const { status, tx_ref } = req.body;  // Chapa's callback data
+  console.log('Chapa Callback Data:', req.body);
 
   try {
     // Verify the transaction with Chapa API
@@ -63,22 +63,26 @@ app.post('/callback', async (req, res) => {
       }
     });
 
+    // Log the full verification response for debugging purposes
+    console.log('Verification response:', verifyResponse.data);
+
+    // Check the payment status from Chapa's verification response
     const { status: verifyStatus, data: verifyData } = verifyResponse.data;
 
+    // If verification is successful and the payment is successful
     if (verifyStatus === 'success' && verifyData.payment_status === 'success') {
-
-      console.log(`Payment verified successfully for tx_ref: ${tx_ref}`);
+      console.log(`✅ Payment verified successfully for tx_ref: ${tx_ref}`);
       // Update payment status to 'success'
       paymentStatuses[tx_ref] = 'success';
       res.status(200).send('Payment successfully verified!');
     } else {
-      console.log(`Payment verification failed for tx_ref: ${tx_ref}`);
+      console.log(`❌ Payment verification failed for tx_ref: ${tx_ref}`);
       // Update payment status to 'failed'
       paymentStatuses[tx_ref] = 'failed';
       res.status(400).send('Payment verification failed!');
     }
   } catch (error) {
-    console.error('Error verifying transaction:', error.response?.data || error.message);
+    console.error('❌ Error verifying transaction:', error.response?.data || error.message);
     paymentStatuses[tx_ref] = 'failed';
     res.status(500).send('Error verifying transaction');
   }
