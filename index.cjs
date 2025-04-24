@@ -27,7 +27,7 @@ app.post('/api/checkout', async (req, res) => {
       phone_number,
       tx_ref,
       callback_url: 'http://localhost:5400/callback',  // Your callback URL
-      return_url: 'http://localhost:5400/thank-you',  // URL to redirect user after payment
+      // return_url: 'http://localhost:5400/thank-you',  // URL to redirect user after payment
       customizations: {
         title: 'mahi market',
         description: 'Payment for your awesome service'
@@ -51,6 +51,7 @@ app.post('/api/checkout', async (req, res) => {
 });
 
 // 2. Webhook to handle Chapa's callback and verify the transaction
+// 2. Webhook to handle Chapa's callback and verify the transaction
 app.post('/callback', async (req, res) => {
   const { status, tx_ref } = req.body;  // Chapa's callback data
   console.log('Chapa Callback Data:', req.body);
@@ -69,8 +70,8 @@ app.post('/callback', async (req, res) => {
     // Check the payment status from Chapa's verification response
     const { status: verifyStatus, data: verifyData } = verifyResponse.data;
 
-    // If verification is successful and the payment is successful
-    if (verifyStatus === 'success' && verifyData.payment_status === 'success') {
+    // Correctly check the 'status' field to verify the payment
+    if (verifyStatus === 'success' && verifyData.status === 'success') {
       console.log(`✅ Payment verified successfully for tx_ref: ${tx_ref}`);
       // Update payment status to 'success'
       paymentStatuses[tx_ref] = 'success';
@@ -87,6 +88,7 @@ app.post('/callback', async (req, res) => {
     res.status(500).send('Error verifying transaction');
   }
 });
+
 
 // 3. Polling endpoint for checking payment status
 app.get('/api/payment-status/:tx_ref', (req, res) => {
