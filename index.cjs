@@ -14,7 +14,7 @@ app.use('/callback', bodyParser.json());  // For handling raw JSON from Chapa's 
 
 // 1. Checkout endpoint (User initiates payment)
 app.post('/api/checkout', async (req, res) => {
-  const { amount, email, first_name, last_name, phone_number, currency = 'ETB', callbacl_url } = req.body;
+  const { amount, email, first_name, last_name, phone_number, currency = 'ETB', return_url } = req.body;
   const tx_ref = `tx-${Date.now()}`;  // Unique transaction reference
 
   try {
@@ -26,8 +26,8 @@ app.post('/api/checkout', async (req, res) => {
       last_name,
       phone_number,
       tx_ref,
-      callback_url, // Your callback URL
-      // return_url: 'http://localhost:5400/thank-you',  // URL to redirect user after payment
+      // callback_url, // Your callback URL
+      return_url,
       customizations: {
         title: 'mahi market',
         description: 'Payment for your awesome service'
