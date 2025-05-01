@@ -27,6 +27,7 @@ app.post('/api/checkout', async (req, res) => {
       phone_number,
       tx_ref,
       // callback_url, // Your callback URL
+      callback_url: 'http://localhost:5400/callback',  // Your callback URL
       return_url,
       customizations: {
         title: 'mahi market',
